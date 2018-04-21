@@ -3,6 +3,7 @@ const picklejs = require('picklejs');
 
 class Track{                                    // Clase Track
   constructor (anAlbum, unString, anInt, genresN){
+    this.name=String;
     this.name=unString;
     this.album=anAlbum;
     this.genres= new Array(String);
@@ -32,6 +33,10 @@ class Artist{                                   // Clase Artist
     this.albums=new Array(Album);
     this.albums=[];
   }
+
+  devolverAlbumsDelArtista(){
+    return this.albums;
+  }
 }
 
 class Playlist{                                 //Clase Playlist
@@ -56,7 +61,7 @@ class Playlist{                                 //Clase Playlist
 class UNQfy {                                   // Clase UNQfy
   constructor(){
     this.artists= new Array(Artist);
-    this.artist=[];
+    this.artists=[];
     this.playlists= new Array(Playlist);
   }
 
@@ -64,26 +69,54 @@ class UNQfy {                                   // Clase UNQfy
     const artistaNuevo= new Artist(anArtist.name, anArtist.country);
     if (this.getArtistByName(artistaNuevo.name)===undefined){
       this.artists.push(artistaNuevo);
+    }else{
+        console.log('No es posible agregar el artista '+ '"'+artistaNuevo.name+'" ya que se encuentra repetido');
     }
   }
 
   getArtistByName(name) {       //Se le pasa el nombre de un artista y devuelve el objeto Artist asociado a el
     const listaDeArtistas=this.artists;
     for (let index = 0; index < listaDeArtistas.length; index++) {
-      const elem = listaDeArtistas[index];
-      if (name===elem.name){
-        return elem;
+      const unArtista = listaDeArtistas[index];
+      if (name===unArtista.name){
+        return unArtista;
       }
     }
   }
 
   addAlbum(artistName, anAlbum) {  // Agrega un album a la lista de albums del sistema, en caso de que el artista dueño del album no exista tambien lo cre
-    const albumNuevo= new Album(artistName, anAlbum.name, anAlbum.year);
     const artista=this.getArtistByName(artistName);
-    artista.albums.push(albumNuevo);
+    const albumNuevo= new Album(artista, anAlbum.name, anAlbum.year);
+    if (this.getAlbumByName(albumNuevo.name)===undefined){
+      artista.albums.push(albumNuevo);
+    }else{
+      console.log('No es posible agregar el album '+ '"'+albumNuevo.name+'" ya que se encuentra repetido');
+    }
   }
 
- /* addTrack(albumName, trackName, trackDuraction, trackGenres) { //  Agrega una cancion a la lista de canciones del sistema
+  getAlbumByName(name) {      //Se le pasa el nombre de un album y devuelve el objeto Album asociado
+    const listaDeAlbumes=this.conseguirListaDeAlbums();
+    for (let index = 0; index < listaDeAlbumes.length; index++) {
+      const album = listaDeAlbumes[index];
+      if(name===album.name){
+        return album;
+      }
+    }
+  }
+
+  conseguirListaDeAlbums(){
+    const listaDeArtistas=this.artists;
+    const listaDeAlbumsARetornar=[];
+    for (let index = 0; index < listaDeArtistas.length; index++) {
+      const unArtista = listaDeArtistas[index];
+      for (let index = 0; index < unArtista.albums.length; index++) {
+        const unAlbum = unArtista.albums[index];
+        listaDeAlbumsARetornar.push(unAlbum);
+      }
+    }return listaDeAlbumsARetornar;
+  }
+
+  /* addTrack(albumName, trackName, trackDuraction, trackGenres) { //  Agrega una cancion a la lista de canciones del sistema
     /* El objeto track creado debe soportar (al menos) las propiedades:
          name (string),
          duration (number),
@@ -144,16 +177,6 @@ class UNQfy {                                   // Clase UNQfy
     return cancionesResultantes;
   }
 
-  getAlbumByName(name) {      //Se le pasa el nombre de un album y devuelve el objeto Album asociado
-    const listaDeAlbumes=this.albums;
-    for (let index = 0; index < listaDeAlbumes.length; index++) {
-      const album = listaDeAlbumes[index];
-      if(name===album.name){
-        return album;
-      }
-    }
-  }
-
   getTrackByName(name) {        //Se le pasa el nombre de una canción y devuelve el objeto Track que corresponda
     const listaDeTracks=this.tracks;
     for (let index = 0; index < listaDeTracks.length; index++) {
@@ -192,11 +215,14 @@ module.exports = {
   UNQfy
 };
 
+// Pruebas
 const s= new UNQfy();
 s.addArtist({name:'Evanescence', country:'USA'});
 s.addArtist({name:'Evanescence', country:'USA'});
 s.addArtist({name:'Avril Lavigne', country:'USA'});
 s.addArtist({name:'Evanescence', country:'USA'});
+s.addAlbum('Avril Lavigne', {name:'The best damn thing'});
+s.addAlbum('Evanescence', {name:'Fallen', year:2003});
 s.addAlbum('Avril Lavigne', {name:'The best damn thing'});
 
 
