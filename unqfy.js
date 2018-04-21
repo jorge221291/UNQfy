@@ -22,7 +22,16 @@ class Album{                                    // Clase Album
     this.artistsOfAlbum= anArtist;
     this.name=aName;
     this.year=aYear;
+    this.tracks=new Array(Track);
+    this.tracks=[];
+  }
 
+  devolverTracks(){
+    const listaDeTracks=[];
+    for (let index = 0; index < this.tracks.length; index++) {
+      const unaCancion = this.tracks[index];
+      listaDeTracks.push(unaCancion);
+    }return listaDeTracks;
   }
 }
 
@@ -34,8 +43,12 @@ class Artist{                                   // Clase Artist
     this.albums=[];
   }
 
-  devolverAlbumsDelArtista(){
-    return this.albums;
+  devolverAlbums(){
+    const listaDeAlbums=[];
+    for (let index = 0; index < this.albums.length; index++) {
+      const unAlbum = this.albums[index];
+      listaDeAlbums.push(unAlbum);
+    }return listaDeAlbums;
   }
 }
 
@@ -70,7 +83,7 @@ class UNQfy {                                   // Clase UNQfy
     if (this.getArtistByName(artistaNuevo.name)===undefined){
       this.artists.push(artistaNuevo);
     }else{
-        console.log('No es posible agregar el artista '+ '"'+artistaNuevo.name+'" ya que se encuentra repetido');
+      console.log('No es posible agregar el artista '+ '"'+artistaNuevo.name+'" ya que se encuentra repetido');
     }
   }
 
@@ -106,26 +119,43 @@ class UNQfy {                                   // Clase UNQfy
 
   conseguirListaDeAlbums(){
     const listaDeArtistas=this.artists;
-    const listaDeAlbumsARetornar=[];
+    let listaDeAlbumsARetornar=[];
     for (let index = 0; index < listaDeArtistas.length; index++) {
       const unArtista = listaDeArtistas[index];
-      for (let index = 0; index < unArtista.albums.length; index++) {
-        const unAlbum = unArtista.albums[index];
-        listaDeAlbumsARetornar.push(unAlbum);
-      }
+      listaDeAlbumsARetornar=listaDeAlbumsARetornar.concat(unArtista.devolverAlbums());
     }return listaDeAlbumsARetornar;
   }
 
-  /* addTrack(albumName, trackName, trackDuraction, trackGenres) { //  Agrega una cancion a la lista de canciones del sistema
-    /* El objeto track creado debe soportar (al menos) las propiedades:
-         name (string),
-         duration (number),
-         genres (lista de strings)
-    
-    this.tracks.push(new Track (albumName, trackName, trackDuraction, trackGenres));
+  addTrack(albumName, {name:trackName, duration:trackDuraction, genres:trackGenres}) { //  Agrega una cancion a la lista de canciones del sistema
+    const album= this.getAlbumByName(albumName);
+    const cancionNueva=new Track (album, trackName, trackDuraction, trackGenres);
+    if (!(album.tracks.includes(this.getTrackByName(cancionNueva.name)))){
+      album.tracks.push(cancionNueva);
+    }else{
+      console.log('No es posible agregar el track '+ '"'+cancionNueva.name+'" ya que se encuentra repetido');
+    }
   }
 
-  addPlaylist(name, genresToInclude, maxDuration) {
+  getTrackByName(name) {        //Se le pasa el nombre de una canción y devuelve el objeto Track que corresponda
+    const listaDeTracks=this.conseguirListaDeTracks();
+    for (let index = 0; index < listaDeTracks.length; index++) {
+      const cancion = listaDeTracks[index];
+      if(name===cancion.name){
+        return cancion;
+      }
+    }
+  }
+
+  conseguirListaDeTracks(){
+    let listaDeTracks=[];
+    const listaDeAlbumes= this.conseguirListaDeAlbums();
+    for (let index = 0; index < listaDeAlbumes.length; index++) {
+      const unAlbum = listaDeAlbumes[index];
+      listaDeTracks=listaDeTracks.concat(unAlbum.devolverTracks());
+    }return listaDeTracks;
+  }
+
+  /* addPlaylist(name, genresToInclude, maxDuration) {
     /* El objeto playlist creado debe soportar (al menos):
       * una propiedad name (string)
       * un metodo duration() que retorne la duración de la playlist.
@@ -177,16 +207,6 @@ class UNQfy {                                   // Clase UNQfy
     return cancionesResultantes;
   }
 
-  getTrackByName(name) {        //Se le pasa el nombre de una canción y devuelve el objeto Track que corresponda
-    const listaDeTracks=this.tracks;
-    for (let index = 0; index < listaDeTracks.length; index++) {
-      const cancion = listaDeTracks[index];
-      if(name===cancion.name){
-        return cancion;
-      }
-    }
-  }
-
   getPlaylistByName(name) {     //Se le pasa el nombre de una Playlist y devuelve el objeto Playlist asociado
     const listaDePlaylists=this.playlists;
     for (let index = 0; index < listaDePlaylists.length; index++) {
@@ -221,12 +241,22 @@ s.addArtist({name:'Evanescence', country:'USA'});
 s.addArtist({name:'Evanescence', country:'USA'});
 s.addArtist({name:'Avril Lavigne', country:'USA'});
 s.addArtist({name:'Evanescence', country:'USA'});
+
 s.addAlbum('Avril Lavigne', {name:'The best damn thing'});
 s.addAlbum('Evanescence', {name:'Fallen', year:2003});
+s.addAlbum('Evanescence', {name:'The open door', year:2006});
 s.addAlbum('Avril Lavigne', {name:'The best damn thing'});
 
+s.addTrack('Fallen', {name:'Bring me to life', duration:236, genres:['Rock']});
+s.addTrack('Fallen', {name:'Bring me to life', duration:236, genres:['Rock']});
+s.addTrack('The open door', {name:'Bring me to life', duration:236, genres:['Rock']});
 
 for (let index = 0; index < s.artists.length; index++) {
   const element = s.artists[index];
   console.log(element);
+  for (let index = 0; index < element.albums.length; index++) {
+    const element2 = element.albums[index];
+    console.log(element2);
+    
+  }
 }
