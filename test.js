@@ -5,18 +5,18 @@ const libunqfy = require('./unqfy');
 
 
 function createAndAddArtist(unqfy, artistName, country) {
-  unqfy.addArtist(artistName, country);
+  unqfy.addArtist({ name: artistName, country });
   const artist = unqfy.getArtistByName(artistName);
   return artist;
 }
 
 function createAndAddAlbum(unqfy, artistName, albumName, albumYear) {
-  unqfy.addAlbum(artistName, albumName, albumYear );
+  unqfy.addAlbum(artistName, { name: albumName, year: albumYear });
   return unqfy.getAlbumByName(albumName);
 }
 
 function createAndAddTrack(unqfy, albumName, trackName, trackDuraction, trackGenres) {
-  unqfy.addTrack(albumName, trackName, trackDuraction, trackGenres);
+  unqfy.addTrack(albumName, { name: trackName, duration: trackDuraction, genres: trackGenres });
   return unqfy.getTrackByName(trackName);
 }
 

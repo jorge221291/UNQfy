@@ -6,7 +6,6 @@ class Track{                                    // Clase Track
     this.name=String;
     this.name=unString;
     this.album=anAlbum;
-    this.genres= new Array(String);
     this.genres=genresN;
     this.duration=anInt;
   }
@@ -22,7 +21,6 @@ class Album{                                    // Clase Album
     this.artistsOfAlbum= anArtist;
     this.name=aName;
     this.year=aYear;
-    this.tracks=new Array(Track);
     this.tracks=[];
   }
 
@@ -39,7 +37,6 @@ class Artist{                                   // Clase Artist
   constructor (aString, aCountry){
     this.name=aString;
     this.country=aCountry;
-    this.albums=new Array(Album);
     this.albums=[];
   }
 
@@ -55,10 +52,8 @@ class Artist{                                   // Clase Artist
 class Playlist{                                 //Clase Playlist
   constructor (aString, genresN, time, listaDeTracks){
     this.name=aString;
-    this.genresTotal=new Array(String);
     this.genresTotal=genresN;
     this.totalDuration=time;
-    this.totalTracks=new Array(Track);
     this.totalTracks=listaDeTracks;
   }
 
@@ -73,9 +68,8 @@ class Playlist{                                 //Clase Playlist
 
 class UNQfy {                                   // Clase UNQfy
   constructor(){
-    this.artists= new Array(Artist);
     this.artists=[];
-    this.playlists= new Array(Playlist);
+    this.playlists=[];
   }
 
   addArtist(anArtist) {              // Agrega un artista a la lista de artistas de la clase UNQfy
@@ -89,12 +83,13 @@ class UNQfy {                                   // Clase UNQfy
 
   getArtistByName(name) {       //Se le pasa el nombre de un artista y devuelve el objeto Artist asociado a el
     const listaDeArtistas=this.artists;
+    let artista;
     for (let index = 0; index < listaDeArtistas.length; index++) {
       const unArtista = listaDeArtistas[index];
       if (name===unArtista.name){
-        return unArtista;
+        artista=unArtista;
       }
-    }
+    }return artista;
   }
 
   addAlbum(artistName, anAlbum) {  // Agrega un album a la lista de albums del sistema, en caso de que el artista dueño del album no exista tambien lo cre
@@ -129,10 +124,14 @@ class UNQfy {                                   // Clase UNQfy
   addTrack(albumName, {name:trackName, duration:trackDuraction, genres:trackGenres}) { //  Agrega una cancion a la lista de canciones del sistema
     const album= this.getAlbumByName(albumName);
     const cancionNueva=new Track (album, trackName, trackDuraction, trackGenres);
-    if (!(album.tracks.includes(this.getTrackByName(cancionNueva.name)))){
-      album.tracks.push(cancionNueva);
+    if (album===undefined){
+      console.log('album inexistente');
     }else{
-      console.log('No es posible agregar el track '+ '"'+cancionNueva.name+'" ya que se encuentra repetido');
+      if (!(album.tracks.includes(this.getTrackByName(cancionNueva.name)))){
+        album.tracks.push(cancionNueva);
+      }else{
+        console.log('No es posible agregar el track '+ '"'+cancionNueva.name+'" ya que se encuentra repetido');
+      }
     }
   }
 
@@ -155,6 +154,30 @@ class UNQfy {                                   // Clase UNQfy
     }return listaDeTracks;
   }
 
+  getTracksMatchingGenres(genres) {
+    const cumplenGeneros= [];    
+    const listaDeTracks= this.conseguirListaDeTracks();                           //Recorre la lista de generos 
+    for (let index = 0; index < genres.length; index++) {                         //recibida por parametro y le pregunta
+      const genero = genres[index];                                               //a cada Track si su lista de generos
+      for (let index = 0; index < listaDeTracks.length; index++) {                //incluye al genero buscado y si no se
+        const cancion = listaDeTracks[index];                                     //habia pusheado antes (para evitar 
+        if (cancion.cumpleGenero(genero)&&!(cumplenGeneros.includes(cancion))){   //repetidos) se pushea.
+          cumplenGeneros.push(cancion);
+        }
+      }
+    }
+    return cumplenGeneros;
+  }
+
+  getTracksMatchingArtist(unArtista) {   //Le paso un artista y devuelve la lista de canciones asociadas a el
+    const albums=unArtista.devolverAlbums();
+    let tracks=[];
+    for (let index = 0; index < albums.length; index++) {
+      const unAlbum = albums[index];
+      tracks=tracks.concat(unAlbum.devolverTracks());
+    }return tracks;
+  }
+
   /* addPlaylist(name, genresToInclude, maxDuration) {
     /* El objeto playlist creado debe soportar (al menos):
       * una propiedad name (string)
@@ -162,22 +185,7 @@ class UNQfy {                                   // Clase UNQfy
       * un metodo hasTrack(aTrack) que retorna true si aTrack se encuentra en la playlist
     
     this.playlists.push(new Playlist(name, genresToInclude, maxDuration, this.tracks));
-  }
-
-  getTracksMatchingGenres(genres) {
-    // Debe retornar todos los tracks que contengan alguno de los generos en el parametro genres
-    const cumplenGeneros= [];                                                     //Recorre la lista de generos 
-    for (let index = 0; index < genres.length; index++) {                         //recibida por parametro y le pregunta
-      const genero = genres[index];                                               //a cada Track si su lista de generos
-      for (let index = 0; index < this.tracks.length; index++) {                  //incluye al genero buscado y si no se
-        const cancion = this.tracks[index];                                       //habia pusheado antes (para evitar 
-        if (cancion.cumpleGenero(genero)&&!(cumplenGeneros.includes(cancion))){//repetidos) se pushea.
-          cumplenGeneros.push(cancion);
-        }
-      }
-    }
-    return cumplenGeneros;
-  }      
+  }    
 
   getAlbumesDeUnArtista(artist){    //Devuelve una lista de albumes que interpreta un artista
     const listaDeAlbumes=this.albums;
@@ -189,22 +197,6 @@ class UNQfy {                                   // Clase UNQfy
       }
     }
     return albumesResultantes;
-  }
-
-  getTracksMatchingArtist(artistName) {   //Le paso un artista y devuelve la lista de canciones asociadas a el
-    const listaDeCanciones=this.tracks;
-    const albumesResultantes=this.getAlbumesDeUnArtista(artistName);          //Albumes que son del artista
-    const cancionesResultantes=[];                                     //Recorro la lista de canciones y los albums que 
-    for (let index = 0; index < listaDeCanciones.length; index++) {    //contienen al artista para poder de esta manera 
-      const cancion = listaDeCanciones[index];                         //preguntar si el nombre del album del artista
-      for (let index = 0; index < albumesResultantes.length; index++) {//es igual a el album que lo contiene.
-        const albumQueContieneAlArtista = albumesResultantes[index];   //Estoy comparando Album.name con Track.album,
-        if (albumQueContieneAlArtista.name===cancion.album){           //entonces si la cancion pertenece al album que 
-          cancionesResultantes.push(cancion);                          //interpreta el artista buscado se pushea.
-        }
-      }
-    }
-    return cancionesResultantes;
   }
 
   getPlaylistByName(name) {     //Se le pasa el nombre de una Playlist y devuelve el objeto Playlist asociado
@@ -250,6 +242,11 @@ s.addAlbum('Avril Lavigne', {name:'The best damn thing'});
 s.addTrack('Fallen', {name:'Bring me to life', duration:236, genres:['Rock']});
 s.addTrack('Fallen', {name:'Bring me to life', duration:236, genres:['Rock']});
 s.addTrack('The open door', {name:'Bring me to life', duration:236, genres:['Rock']});
+s.addTrack('Let go', {name:'Complicated', duration:244, genres:['Rock', 'pop']});
+
+s.addAlbum('Avril Lavigne', {name:'Let go'});
+
+s.addTrack('Let go', {name:'Complicated', duration:244, genres:['Rock', 'pop']});
 
 for (let index = 0; index < s.artists.length; index++) {
   const element = s.artists[index];
@@ -259,4 +256,10 @@ for (let index = 0; index < s.artists.length; index++) {
     console.log(element2);
     
   }
+}
+
+const cancionesDeRock= s.getTracksMatchingGenres(['Rock'])
+for (let index = 0; index < cancionesDeRock.length; index++) {
+  const element = cancionesDeRock[index];
+  console.log(element);
 }
