@@ -53,12 +53,12 @@ class Playlist{                                 //Clase Playlist
   constructor (aString, genresN, time, listaDeTracks){
     this.name=aString;
     this.genresTotal=genresN;
-    this.totalDuration=time;
+    this.maxDuration=time;
     this.totalTracks=listaDeTracks;
   }
 
   duration(){
-    return this.totalDuration;
+    return this.maxDuration;
   }
 
   hasTrack(aTrack){
@@ -178,14 +178,43 @@ class UNQfy {                                   // Clase UNQfy
     }return tracks;
   }
 
-  /* addPlaylist(name, genresToInclude, maxDuration) {
-    /* El objeto playlist creado debe soportar (al menos):
-      * una propiedad name (string)
-      * un metodo duration() que retorne la duración de la playlist.
-      * un metodo hasTrack(aTrack) que retorna true si aTrack se encuentra en la playlist
-    
-    this.playlists.push(new Playlist(name, genresToInclude, maxDuration, this.tracks));
-  }    
+  addPlaylist(name, genresToInclude, maxDuration) {
+    // un metodo hasTrack(aTrack) que retorna true si aTrack se encuentra en la playlist*/
+    const cancionesPorGenero=this.getTracksMatchingGenres(genresToInclude);
+    //const listaFinal=this.recortarLista(cancionesPorGenero, maxDuration);
+    const nuevaPlaylist=new Playlist(name, genresToInclude, maxDuration, cancionesPorGenero);
+    this.playlists.push(nuevaPlaylist);
+  }  
+
+  duracionDeUnaListaDeTracks(listaDeTracks){
+    let duracion=0;
+    for (let index = 0; index < listaDeTracks.length; index++) {
+      const unaCancion = listaDeTracks[index];
+      duracion=duracion+unaCancion.duration;
+    }return duracion;
+  }
+
+  getPlaylistByName(name) {     //Se le pasa el nombre de una Playlist y devuelve el objeto Playlist asociado
+    const listaDePlaylists=this.playlists;
+    for (let index = 0; index < listaDePlaylists.length; index++) {
+      const playlist = listaDePlaylists[index];
+      if(name===playlist.name){
+        return playlist;
+      }
+    }
+  }
+
+  recortarLista(unaListaDeTracks, duracionMaxima){
+    const lista=[];
+    for (let index = 0; index < unaListaDeTracks.length; index++) {
+      const element = unaListaDeTracks[index];
+      if (this.duracionDeUnaListaDeTracks(lista)<duracionMaxima||duracionMaxima===undefined){
+        lista.push(element);
+      }
+    }return lista;
+  }
+
+  /*   
 
   getAlbumesDeUnArtista(artist){    //Devuelve una lista de albumes que interpreta un artista
     const listaDeAlbumes=this.albums;
@@ -198,16 +227,7 @@ class UNQfy {                                   // Clase UNQfy
     }
     return albumesResultantes;
   }
-
-  getPlaylistByName(name) {     //Se le pasa el nombre de una Playlist y devuelve el objeto Playlist asociado
-    const listaDePlaylists=this.playlists;
-    for (let index = 0; index < listaDePlaylists.length; index++) {
-      const playlist = listaDePlaylists[index];
-      if(name===playlist.name){
-        return playlist;
-      }
-    }
-  }*/
+*/
 
   save(filename = 'unqfy.json') {
     new picklejs.FileSerializer().serialize(filename, this);
@@ -263,3 +283,7 @@ for (let index = 0; index < cancionesDeRock.length; index++) {
   const element = cancionesDeRock[index];
   console.log(element);
 }
+
+s.addPlaylist('lista de rock', ['Rock'],200);
+const playlist=s.getPlaylistByName('lista de rock');
+console.log(playlist);
