@@ -11,5 +11,7 @@
   <LI>La clase UNQfy tiene una lista de artistas que puede agregar sin repetir su nombre
   <LI>Cada artista permite añadirle albums solo en caso que el nombre no se repita
   <LI>Los artistas pueden devolver la lista de albums que poseen
+  <LI>Los albums saben devolver los tracks que poseen
+  <LI>Es posible agregarle tracks a un album solo si este aun no lo tiene
 <UL><OL>
 
